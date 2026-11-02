@@ -80,7 +80,7 @@ curl "https://프로젝트ID.supabase.co/rest/v1/menu_items?select=name&limit=3"
 
 `daegu-festival/web/index.html` 안에 직접 적힌 시간표·메뉴·퀴즈 내용을 Supabase에서 불러오도록 바꾸는 단계예요. 프로젝트 URL과 공개 키가 필요해요.
 
-공개 키는 페이지 코드에 직접 적어요. 빌드 과정이 없는 HTML 페이지는 Vercel 환경 변수를 읽지 못해요.
+페이지는 Vite로 빌드하므로 공개 키를 Vercel 환경 변수로 관리할 수 있어요. 변수 이름은 `VITE_`로 시작해야 페이지에서 읽을 수 있어요.
 
 ## 5단계. Vercel에 배포
 
@@ -90,10 +90,11 @@ curl "https://프로젝트ID.supabase.co/rest/v1/menu_items?select=name&limit=3"
 
 | 항목 | 값 |
 |---|---|
-| Framework Preset | **Other** |
+| Framework Preset | **Vite** |
 | Root Directory | `daegu-festival/web` |
-| Build Command | 비워 둠 |
-| Output Directory | 비워 둠 |
+| Build Command | 비워 둠 (자동으로 `vite build`) |
+| Output Directory | 비워 둠 (자동으로 `dist`) |
+| Install Command | 비워 둠 (자동으로 `npm install`) |
 
 4. **Deploy** → 완료되면 `https://프로젝트이름.vercel.app` 주소가 나와요.
 5. 그 주소가 누구나 들어올 수 있는 링크예요. 이후에는 연결한 브랜치에 푸시할 때마다 자동으로 다시 배포돼요.
@@ -106,11 +107,15 @@ Vercel은 **GitHub에 푸시된 내용**만 봐요. 내 컴퓨터에만 있는 �
 개인웹사이트 만들기/        ← 저장소 skyapple11-ui/-
 ├── app/                    상품 관리 앱. 축제 페이지와 별개
 └── daegu-festival/
-    ├── web/                ← Vercel Root Directory. 인터넷에 공개되는 폴더
+    ├── web/                ← Vercel Root Directory
     │   ├── index.html
-    │   └── assets/
+    │   ├── package.json
+    │   └── public/assets/  이미지. 빌드할 때 그대로 복사됨
     └── supabase/           schema·seed·이 가이드. 공개되지 않음
 ```
+
+- 인터넷에 공개되는 것은 `web/`을 빌드해서 나온 `dist/`예요. `dist/`와 `node_modules/`는 Git에 올리지 않아요.
+- 내 컴퓨터에서 미리 보려면 `daegu-festival/web`에서 `npm install` 후 `npm run dev`를 실행해요.
 
 - Root Directory를 `daegu-festival/web`로 지정하면 `app/`과 `supabase/`는 사이트에 올라가지 않아요.
 - 푸시할 때 `git add -A`는 쓰지 말고 `daegu-festival`만 지정해요. 저장소에 아직 커밋 안 된 다른 작업이 많아요.
@@ -128,7 +133,8 @@ Vercel은 **GitHub에 푸시된 내용**만 봐요. 내 컴퓨터에만 있는 �
 | 컬럼을 고쳤는데 반영이 안 됨 | `schema.sql`은 이미 있는 표를 바꾸지 않음 | 아래 "처음부터 다시" 실행 |
 | 표를 고쳤는데 API에서 `schema cache` 오류 | Supabase가 새 구조를 아직 모름 | SQL Editor에서 `notify pgrst, 'reload schema';` 실행 |
 | Vercel `404: NOT_FOUND` | Root Directory가 틀림 | `daegu-festival/web`로 지정하고 Redeploy |
-| Vercel에서 이미지만 안 보임 | `assets/`가 푸시 안 됐거나 경로·대소문자가 다름 | GitHub에 `assets/`가 있는지 확인 |
+| Vercel `vite: command not found` | Root Directory가 `daegu-festival/web`이 아니어서 `package.json`을 못 찾음 | Root Directory를 고치고 Redeploy |
+| Vercel에서 이미지만 안 보임 | `public/assets/`가 푸시 안 됐거나 경로·대소문자가 다름 | GitHub에 `web/public/assets/`가 있는지 확인 |
 | Vercel에 예전 화면이 나옴 | 다른 브랜치에 푸시함 | Vercel의 Production Branch와 푸시한 브랜치 비교 |
 
 ### 처음부터 다시
