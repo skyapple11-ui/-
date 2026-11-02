@@ -11,7 +11,8 @@ begin;
 truncate table public.festivals restart identity cascade;
 
 insert into public.festivals
-  (id, year, name, theme, tagline, summary, start_date, end_date, venue, hours_note, admission_note, host_name, organizer_name, status)
+  (id, year, name, theme, tagline, summary, start_date, end_date, venue, hours_note, admission_note, host_name, organizer_name, status,
+   edition_label, venue_detail, notice)
 values
   ('dialect-2027', 2027, '2027 대구 사투리 축제', '타지에서 온 말손님',
    '대구말, 함 붙어 보까?',
@@ -19,7 +20,10 @@ values
    '2027-08-20', '2027-08-22', '두류공원 일원',
    '금·토 11:00~23:00 / 일 11:00~21:00. 낮 12~16시는 실내 말손님 사랑방 중심 운영(폭염 대응)',
    '무료 · 토론 결승 관람은 사전 예약 + 현장 선착순',
-   null, null, 'draft');
+   null, null, 'draft',
+   '제1회',
+   '두류공원 일원 (코오롱 야외음악당 · 2.28 자유광장 · 잔디광장)',
+   '본 페이지는 2027 대구 사투리 축제 기획안(03_기획안.md) 기반의 가상 안내 페이지 시안입니다. 일정·장소·혜택은 확정 전이며 실제 운영과 다를 수 있어요.');
 
 insert into public.mascots
   (id, festival_id, name, team, role_label, description, image_path, sort_order)
@@ -154,6 +158,17 @@ values
   ('2027-sf-2', 'dialect-2027', '4강', 2, '2027-08-21', null, null, null, null),
   ('2027-final', 'dialect-2027', '결승', 1, '2027-08-21', null, null, null, '2027-t6');
 
+insert into public.debate_rules (festival_id, category, content, sort_order)
+values
+  ('dialect-2027', 'schedule', '16강 8/20(금) 19:00~', 1),
+  ('dialect-2027', 'schedule', '8강 8/21(토) 17:00 · 4강 19:30 · 결승 20:30', 2),
+  ('dialect-2027', 'format', '2인 1팀 16팀 토너먼트. 심사위원 60% + 관객 투표 40%', 3),
+  ('dialect-2027', 'format', '1경기 12분: 입론 2분×2 → 자유 토론 4분 → 관객 질문 1분 → 최종 발언', 4),
+  ('dialect-2027', 'chance', '말손님 팀은 ‘대구말 찬스’ 2번 — 사회자가 표준어를 대구말로 바꿔 줘요', 5),
+  ('dialect-2027', 'entry', '토론 예선은 6/1~7/6 영상 접수예요(2인 1팀). 토박이 팀은 대구·경북 거주, 말손님 팀은 그 외 지역이에요.', 6),
+  ('dialect-2027', 'entry', '팀명은 예선(6/1~7/6) 후 공개돼요', 7),
+  ('dialect-2027', 'topic_policy', '지역 비하·정치·젠더·세대 갈등 논제는 다루지 않아요.', 8);
+
 insert into public.menu_items (festival_id, name, order_phrase, sort_order)
 values
   ('dialect-2027', '따로국밥', '따로국밥 한 그릇 주이소', 1),
@@ -245,5 +260,15 @@ values
    '능력고사 탭에서 5문제 맛보기 고사를 풀 수 있어요. 등급이 토박이 / 반쯤 대구 사람 / 귀한 말손님으로 나와요.', 8),
   ('dialect-2027', array['스탬프', '수료', '원조'],
    '스탬프 3개 모으면 말손님 수료증! 일요일엔 원조가게 3곳 들르면 대구로페이 1만 원이에요.', 9);
+
+insert into public.assistant_messages (festival_id, kind, content, sort_order)
+values
+  ('dialect-2027', 'greeting', '말손님, 어서 오이소! 대구 토박이 냥이라예 👋 축제 시간표, 숙박 혜택, 토론 참가, 먹거리… 궁금한 거 물어보이소.', 1),
+  ('dialect-2027', 'fallback', '음… 그건 아직 잘 모르겠어예. 시간표·숙박·토론·먹거리·폭염 쪽으로 물어봐 주이소! (시안 데모라 정해진 답만 해요)', 2),
+  ('dialect-2027', 'suggestion', '결승 언제 해요?', 3),
+  ('dialect-2027', 'suggestion', '숙박 혜택 알려줘', 4),
+  ('dialect-2027', 'suggestion', '너무 더운데 어디 가요?', 5),
+  ('dialect-2027', 'suggestion', '토론 참가하려면?', 6),
+  ('dialect-2027', 'suggestion', '비 오면요?', 7);
 
 commit;

@@ -4,7 +4,7 @@
 
 | 파일 | 하는 일 | 어디서 실행 |
 |---|---|---|
-| `schema.sql` | 표 16개와 공개 권한 만들기 | Supabase SQL Editor |
+| `schema.sql` | 표 18개와 공개 권한 만들기 | Supabase SQL Editor |
 | `seed.sql` | 표에 내용 넣기 | Supabase SQL Editor |
 
 ## 먼저 알아 둘 것
@@ -48,7 +48,9 @@ select 'festivals' as 표, count(*) as 건수 from public.festivals
 union all select 'schedule_items', count(*) from public.schedule_items
 union all select 'debate_matches', count(*) from public.debate_matches
 union all select 'quiz_options', count(*) from public.quiz_options
-union all select 'faq_entries', count(*) from public.faq_entries;
+union all select 'faq_entries', count(*) from public.faq_entries
+union all select 'debate_rules', count(*) from public.debate_rules
+union all select 'assistant_messages', count(*) from public.assistant_messages;
 ```
 
 정상 결과는 다음과 같아요.
@@ -60,6 +62,8 @@ union all select 'faq_entries', count(*) from public.faq_entries;
 | debate_matches | 15 |
 | quiz_options | 15 |
 | faq_entries | 9 |
+| debate_rules | 8 |
+| assistant_messages | 7 |
 
 그다음 웹사이트가 쓰는 방식으로도 읽어 봐요. 대시보드의 API 키 메뉴에서 **프로젝트 URL**과 **Publishable key**(예전 프로젝트는 **anon key**)를 찾아 아래에 넣어요.
 
@@ -143,8 +147,9 @@ Vercel은 **GitHub에 푸시된 내용**만 봐요. 내 컴퓨터에만 있는 �
 
 ```sql
 drop table if exists
-  public.faq_entries, public.dialect_rules, public.quiz_grades, public.quiz_options,
-  public.quiz_questions, public.benefits, public.menu_items, public.debate_matches,
+  public.assistant_messages, public.faq_entries, public.dialect_rules, public.quiz_grades,
+  public.quiz_options, public.quiz_questions, public.benefits, public.menu_items,
+  public.debate_rules, public.debate_matches,
   public.debate_teams, public.debate_topics, public.schedule_items, public.programs,
   public.map_pois, public.zones, public.mascots, public.festivals
 cascade;
@@ -163,10 +168,12 @@ cascade;
 | 축제 | `festivals`, `mascots` |
 | 구역·지도 | `zones`, `map_pois` |
 | 프로그램 | `programs`, `schedule_items` |
-| 토론 대회 | `debate_topics`, `debate_teams`, `debate_matches` |
+| 토론 대회 | `debate_topics`, `debate_teams`, `debate_matches`, `debate_rules` |
 | 먹거리·혜택 | `menu_items`, `benefits` |
 | 능력고사 | `quiz_questions`, `quiz_options`, `quiz_grades` |
-| 변환기·도우미 | `dialect_rules`, `faq_entries` |
+| 변환기·도우미 | `dialect_rules`, `faq_entries`, `assistant_messages` |
+
+페이지 내용과 표의 대응은 `schema_map.md`에서 볼 수 있어요.
 
 체크인, 스탬프, 관객 투표, 숙박 인증 표는 만들지 않았어요. 방문자가 저장하는 데이터는 쓰기 권한과 개인정보 보호 설계가 먼저 필요해요(지침 10장). 지금 페이지의 해당 기능은 저장되지 않는 데모예요.
 

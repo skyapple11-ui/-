@@ -24,6 +24,12 @@ create table if not exists public.festivals (
   check (end_date >= start_date)
 );
 
+-- 표를 먼저 만든 경우에도 컬럼이 추가되도록 따로 적어요.
+alter table public.festivals
+  add column if not exists edition_label text,   -- 예: 제1회
+  add column if not exists venue_detail  text,   -- 행사개요의 상세 장소
+  add column if not exists notice        text;   -- 페이지 하단 안내 문구
+
 -- 마스코트 --------------------------------------------------------------------
 create table if not exists public.mascots (
   id           text primary key,
@@ -123,6 +129,14 @@ create table if not exists public.debate_matches (
   check (team_a_id is null or team_b_id is null or team_a_id <> team_b_id)
 );
 
+create table if not exists public.debate_rules (
+  id           bigint generated always as identity primary key,
+  festival_id  text not null references public.festivals (id) on delete cascade,
+  category     text not null check (category in ('schedule', 'format', 'chance', 'entry', 'topic_policy')),
+  content      text not null,
+  sort_order   integer not null default 0
+);
+
 -- 먹거리·혜택 ------------------------------------------------------------------
 create table if not exists public.menu_items (
   id            bigint generated always as identity primary key,
@@ -190,6 +204,14 @@ create table if not exists public.faq_entries (
   sort_order   integer not null default 0
 );
 
+create table if not exists public.assistant_messages (
+  id           bigint generated always as identity primary key,
+  festival_id  text not null references public.festivals (id) on delete cascade,
+  kind         text not null check (kind in ('greeting', 'fallback', 'suggestion')),
+  content      text not null,
+  sort_order   integer not null default 0
+);
+
 -- 공개 권한 --------------------------------------------------------------------
 -- 웹사이트(anon)는 읽기만 할 수 있어요.
 -- Supabase는 새 표를 자동으로 공개하지 않으므로 grant가 꼭 필요해요.
@@ -202,8 +224,9 @@ declare
 begin
   foreach t in array array[
     'festivals', 'mascots', 'zones', 'map_pois', 'programs', 'schedule_items',
-    'debate_topics', 'debate_teams', 'debate_matches', 'menu_items', 'benefits',
-    'quiz_questions', 'quiz_options', 'quiz_grades', 'dialect_rules', 'faq_entries'
+    'debate_topics', 'debate_teams', 'debate_matches', 'debate_rules', 'menu_items', 'benefits',
+    'quiz_questions', 'quiz_options', 'quiz_grades', 'dialect_rules', 'faq_entries',
+    'assistant_messages'
   ]
   loop
     execute format('revoke all on public.%I from anon, authenticated', t);
